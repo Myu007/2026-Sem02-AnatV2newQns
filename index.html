@@ -1,0 +1,4256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz Application - 200 Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode - FIXED VISIBILITY ISSUES */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .quiz-section {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .controls-panel,
+        body.dark-mode .question-grid {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        /* FIXED: Dark mode title visibility */
+        body.dark-mode .title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode controls title visibility */
+        body.dark-mode .controls-title,
+        body.dark-mode .grid-title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode jump to question label visibility */
+        body.dark-mode .jump-to-question label {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode question text visibility */
+        body.dark-mode .question-text {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* FIXED: Dark mode option labels (A, B, C, D, E) visibility */
+        body.dark-mode .option-label {
+            background: #706fd3 !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct/incorrect answer visibility */
+        body.dark-mode .answer-option.correct {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border-color: #388e3c !important;
+        }
+
+        body.dark-mode .answer-option.incorrect {
+            background: #f44336 !important;
+            color: #ffffff !important;
+            border-color: #d32f2f !important;
+        }
+
+        body.dark-mode .answer-option.correct .option-label,
+        body.dark-mode .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct answer mode visibility */
+        body.dark-mode .answer-option.correct-answer-mode {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border: 2px solid #388e3c !important;
+            font-weight: 600;
+        }
+
+        body.dark-mode .answer-option.other-answer-mode {
+            background: #40407a !important;
+            color: #b0b0b0 !important;
+            border: 1px solid #706fd3 !important;
+            opacity: 0.7;
+        }
+
+        body.dark-mode .grid-item {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .grid-item:hover {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* Exam Mode Body Styles */
+        body.exam-mode {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        body.exam-mode.dark-mode {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Container */
+        body.exam-mode .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Header */
+        body.exam-mode .header {
+            background: #e8e8e8;
+            border-radius: 0;
+            margin-bottom: 0;
+            padding: 15px 20px;
+            box-shadow: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        body.exam-mode.dark-mode .header {
+            background: #2c2c54;
+            border-bottom: 1px solid #40407a;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Title */
+        body.exam-mode .title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        body.exam-mode.dark-mode .title {
+            color: #e0e0e0;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer Section */
+        body.exam-mode .timer-section {
+            gap: 20px;
+        }
+
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .timer-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Exam Mode Timer Settings - Show in exam mode */
+        body.exam-mode .timer-settings {
+            display: flex;
+        }
+
+        /* NEW: Question Shuffle Settings for Exam Mode */
+        .question-shuffle-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fff3e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #ff9800;
+            transition: all 0.3s ease;
+        }
+
+        .question-shuffle-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question shuffle settings only in exam mode */
+        body.exam-mode .question-shuffle-settings {
+            display: flex;
+        }
+
+        .question-count-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #2196f3;
+            transition: all 0.3s ease;
+        }
+
+        .question-count-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question count settings only in exam mode */
+        body.exam-mode .question-count-settings {
+            display: flex;
+        }
+
+        .timer-input, .count-input {
+            width: 60px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .timer-label, .count-label, .shuffle-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .timer-start-btn, .count-reset-btn, .shuffle-toggle-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .timer-start-btn:hover, .count-reset-btn:hover, .shuffle-toggle-btn:hover {
+            background: #218838;
+        }
+
+        .count-reset-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-btn:hover {
+            background: #1976d2;
+        }
+
+        .shuffle-toggle-btn {
+            background: #ff9800;
+        }
+
+        .shuffle-toggle-btn:hover {
+            background: #f57c00;
+        }
+
+        .shuffle-toggle-btn.active {
+            background: #4caf50;
+        }
+
+        .shuffle-toggle-btn.active:hover {
+            background: #388e3c;
+        }
+
+        .timer {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 25px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d32f2f;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer */
+        body.exam-mode .timer {
+            background: #ffcdd2;
+            border: 1px solid #f44336;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        .timer.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Exam Mode Active Timer */
+        body.exam-mode .timer.active {
+            background: #ffcdd2;
+            border-color: #f44336;
+            color: #d32f2f;
+        }
+
+        /* NEW: Question Shuffle Display */
+        .question-shuffle-display {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #e65100;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-shuffle-display {
+            display: flex;
+        }
+
+        .question-shuffle-display.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* NEW: Question Count Display */
+        .question-count-display {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #1565c0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-count-display {
+            display: flex;
+        }
+
+        .timer-reset-btn, .shuffle-reset-btn, .count-reset-display-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .timer-reset-btn.visible,
+        .shuffle-reset-btn.visible,
+        .count-reset-display-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .timer-reset-btn:hover,
+        .shuffle-reset-btn:hover,
+        .count-reset-display-btn:hover {
+            background: #e64a19;
+        }
+
+        .count-reset-display-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-display-btn:hover {
+            background: #1976d2;
+        }
+
+        .timer-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-expired-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .timer-expired-message {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-message {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .result-message.passed {
+            border-left: 5px solid #4caf50;
+        }
+
+        .result-message.failed {
+            border-left: 5px solid #f44336;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .result-title.passed {
+            color: #4caf50;
+        }
+
+        .result-title.failed {
+            color: #f44336;
+        }
+
+        .result-stats {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .exit-btn {
+            background: #37474f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .exit-btn:hover {
+            background: #455a64;
+        }
+
+        /* Exam Mode Exit Button */
+        body.exam-mode .exit-btn {
+            background: #2c3e50;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Main Content */
+        body.exam-mode .main-content {
+            grid-template-columns: 1fr;
+            gap: 0;
+            background: #f5f5f5;
+        }
+
+        body.exam-mode.dark-mode .main-content {
+            background: #1a1a2e;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, all 0.3s ease;
+        }
+
+        /* Exam Mode Quiz Section */
+        body.exam-mode .quiz-section {
+            background: #f5f5f5;
+            border-radius: 0;
+            padding: 20px;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        body.exam-mode.dark-mode .quiz-section {
+            background: #1a1a2e;
+        }
+
+        .quiz-section.timer-expired {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .question-header {
+            background: #3f51b5;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Header */
+        body.exam-mode .question-header {
+            background: #0D0A69;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            justify-content: space-between;
+        }
+
+        .question-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Number */
+        body.exam-mode .question-number {
+            background: #34495e;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .question-counter {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Exam Mode Question Counter */
+        body.exam-mode .question-counter {
+            display: inline-block;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Exam Mode Question Text - NO OVERLAPPING NUMBER */
+        body.exam-mode .question-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        body.exam-mode.dark-mode .question-text {
+            color: #e0e0e0;
+        }
+
+        .answers {
+            space-y: 12px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Exam Mode Answer Options */
+        body.exam-mode .answer-option {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 0;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        body.exam-mode.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        /* Exam Mode Answer Option Hover */
+        body.exam-mode .answer-option:hover:not(.disabled) {
+            background: #e8f4fd;
+            border-color: #2196f3;
+            transform: none;
+        }
+
+        body.exam-mode.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        /* Exam Mode Selected Answer */
+        body.exam-mode .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .answer-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .answer-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
+
+        .answer-option.correct-answer-mode {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+            font-weight: 600;
+        }
+
+        .answer-option.other-answer-mode {
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+            opacity: 0.7;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-option.timer-expired {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .option-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        /* Exam Mode Option Label */
+        body.exam-mode .option-label {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background: white;
+            font-size: 0;
+            position: relative;
+        }
+
+        body.exam-mode .answer-option.selected .option-label {
+            background: #2196f3;
+            border-color: #2196f3;
+        }
+
+        body.exam-mode .answer-option.selected .option-label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .answer-option.selected .option-label,
+        .answer-option.correct .option-label,
+        .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Navigation */
+        body.exam-mode .navigation {
+            justify-content: flex-start;
+            gap: 15px;
+            border-top: none;
+            margin-top: 20px;
+            padding-top: 0;
+        }
+
+        .nav-btn {
+            background: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        /* Exam Mode Navigation Buttons */
+        body.exam-mode .nav-btn {
+            background: #2196f3;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: #303f9f;
+        }
+
+        body.exam-mode .nav-btn:hover {
+            background: #1976d2;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Sidebar - HIDE IN EXAM MODE */
+        body.exam-mode .sidebar {
+            display: none;
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .mode-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toggle-btn:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-btn.active {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .jump-to-question {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .jump-to-question label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .jump-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jump-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .jump-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .jump-btn:hover {
+            background: #1976d2;
+        }
+
+        .question-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .grid-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+
+        .grid-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .grid-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .grid-item.current {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .grid-item.answered {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Correct answer in grid (Green) */
+        .grid-item.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Incorrect answer in grid (Red) */
+        .grid-item.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .grid-item.unanswered {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        /* FIXED: SINGLE Exam Mode Question Grid - Navy Blue Header and White Background */
+        .exam-question-grid {
+            display: none;
+            margin-top: 20px;
+        }
+
+        body.exam-mode .exam-question-grid {
+            display: block;
+        }
+
+        .exam-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #0D0A69;
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .exam-grid-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .exam-grid-toggle {
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .exam-grid-toggle:hover {
+            background: #4a6741;
+        }
+
+        /* FIXED: White background for exam grid container */
+        .exam-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 15px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .exam-grid-container.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* FIXED: Exam Grid Items - Red color like reference image */
+        .exam-grid-item {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #c0392b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 11px;
+            transition: all 0.3s;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .exam-grid-item:hover {
+            background: #c0392b;
+        }
+
+        .exam-grid-item.current {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        /* Answered questions - Red background like in reference */
+        .exam-grid-item.answered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* Unanswered questions - Red background like in reference */
+        .exam-grid-item.unanswered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* FIXED: Hide mobile question dropdown in exam mode */
+        .mobile-question-dropdown {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* FIXED: Hide mobile dropdown in exam mode */
+        body.exam-mode .mobile-question-dropdown {
+            display: none !important;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .dropdown-arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dropdown-content.expanded {
+            max-height: 300px;
+            overflow-y: auto; /* Added scroll functionality */
+            padding-bottom: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .timer-section {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .quiz-section {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-option {
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .option-label {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            .controls-panel,
+            .question-grid {
+                padding: 15px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 6px;
+            }
+
+            .grid-item {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+
+            /* Show mobile dropdown instead of sidebar grid in NON-EXAM mode only */
+            .question-grid {
+                display: none;
+            }
+
+            .mobile-question-dropdown {
+                display: block;
+            }
+
+            /* FIXED: Hide mobile dropdown in exam mode on mobile too */
+            body.exam-mode .mobile-question-dropdown {
+                display: none !important;
+            }
+
+            /* Exam Mode Mobile Adjustments */
+            body.exam-mode .container {
+                padding: 0;
+            }
+
+            body.exam-mode .header {
+                padding: 10px 15px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            body.exam-mode .timer-section {
+                gap: 10px;
+            }
+
+            body.exam-mode .quiz-section {
+                padding: 15px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 10px 12px;
+                margin-bottom: 6px;
+            }
+
+            body.exam-mode .option-label {
+                width: 18px;
+                height: 18px;
+            }
+
+            body.exam-mode .navigation {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            body.exam-mode .nav-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                width: auto;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 18px;
+            }
+
+            body.exam-mode .title {
+                font-size: 14px;
+            }
+
+            .timer-input, .count-input {
+                width: 50px;
+                font-size: 12px;
+            }
+
+            .timer {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            body.exam-mode .timer {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .question-text {
+                font-size: 14px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 13px;
+            }
+
+            .answer-option {
+                padding: 10px 12px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 8px 10px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+                gap: 4px;
+            }
+
+            .grid-item {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Enhanced Quiz Application</div>
+            <div class="timer-section">
+                <div class="timer-settings">
+                    <span class="timer-label">Minutes:</span>
+                    <input type="number" class="timer-input" id="minutesInput" value="30" min="1" max="180">
+                    <span class="timer-label">Seconds:</span>
+                    <input type="number" class="timer-input" id="secondsInput" value="0" min="0" max="59">
+                    <button class="timer-start-btn" onclick="startTimer()">Start</button>
+                </div>
+                
+                <div class="question-shuffle-settings">
+                    <span class="shuffle-label">🔀 Shuffle Questions:</span>
+                    <button class="shuffle-toggle-btn" id="shuffleToggleBtn" onclick="toggleQuestionShuffle()">Enable</button>
+                </div>
+                
+                <div class="question-count-settings">
+                    <span class="count-label">Questions:</span>
+                    <input type="number" class="count-input" id="questionCountInput" value="200" min="1" max="200">
+                    <span class="count-label">/ 200</span>
+                    <button class="count-reset-btn" onclick="setQuestionCount()">Set</button>
+                </div>
+                
+                <div class="timer" id="timer">
+                    <span>⏰</span>
+                    <span id="timerDisplay">No timer set</span>
+                    <button class="timer-reset-btn" id="timerResetBtn" onclick="resetTimer()">Reset</button>
+                </div>
+                
+                <div class="question-shuffle-display" id="questionShuffleDisplay">
+                    <span>🔀</span>
+                    <span id="shuffleDisplayText">Shuffle: Off</span>
+                    <button class="shuffle-reset-btn" id="shuffleResetBtn" onclick="resetQuestionShuffle()">Reset</button>
+                </div>
+                
+                <div class="question-count-display" id="questionCountDisplay">
+                    <span>📊</span>
+                    <span id="countDisplayText">200 / 200</span>
+                    <button class="count-reset-display-btn" id="countResetDisplayBtn" onclick="resetQuestionCount()">Reset</button>
+                </div>
+                
+                <button class="exit-btn" onclick="exitQuiz()">
+                    <span>🚪</span>
+                    <span id="exitBtnText">Exit</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="quiz-section" id="quizSection">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="question-counter" id="questionCounter">1 / 200</div>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+                
+                <div class="answers" id="answersContainer">
+                    </div>
+                
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                    <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    <button class="nav-btn" id="finishBtn" onclick="finishQuiz()" style="display: none;">Finish</button>
+                    <button class="nav-btn" id="submitBtn" onclick="finishQuiz()" style="display: none;">Submit</button>
+                </div>
+
+                <div class="mobile-question-dropdown" id="mobileQuestionDropdown">
+                    <div class="dropdown-header" onclick="toggleMobileDropdown()">
+                        <div class="dropdown-title">Question Navigator</div>
+                        <div class="dropdown-arrow" id="dropdownArrow">▼</div>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="grid-container" id="mobileQuestionGrid">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="exam-question-grid" id="examQuestionGrid">
+                    <div class="exam-grid-header">
+                        <div class="exam-grid-title">Question Navigator</div>
+                        <button class="exam-grid-toggle" id="examGridToggle" onclick="toggleExamGrid()">Collapse</button>
+                    </div>
+                    <div class="exam-grid-container" id="examGridContainer">
+                        </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="controls-panel">
+                    <div class="controls-title">Quiz Controls</div>
+                    <div class="mode-toggles">
+                        <button class="toggle-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                        <button class="toggle-btn" id="answerModeBtn" onclick="toggleAnswerMode()">💡 Answer Mode</button>
+                        <button class="toggle-btn" id="questionShuffleModeBtn" onclick="toggleQuestionShuffleMode()">🔀 Shuffle Questions</button>
+                        <button class="toggle-btn" id="examModeBtn" onclick="toggleExamMode()">🎓 Simulate Exam Mode</button>
+                    </div>
+                    <div class="jump-to-question">
+                        <label for="jumpInput">Jump to Question:</label>
+                        <div class="jump-input-group">
+                            <input type="number" class="jump-input" id="jumpInput" min="1" max="200" placeholder="Enter question number">
+                            <button class="jump-btn" onclick="jumpToQuestionNumber()">Go</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-grid">
+                    <div class="grid-title">Question Navigator</div>
+                    <div class="grid-container" id="questionGrid">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timer-expired-overlay" id="timerExpiredOverlay">
+        <div class="timer-expired-message">
+            <h2>⏰ Time's Up!</h2>
+            <p>The timer has expired. Your quiz has been automatically submitted.</p>
+            <button class="nav-btn" onclick="hideTimerExpiredOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-message" id="resultMessage">
+            <div class="result-title" id="resultTitle">Quiz Completed!</div>
+            <div class="result-stats" id="resultStats">
+                </div>
+            <button class="nav-btn" onclick="hideResultOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+        {
+            question: "The functional unit of compact bone is called:",
+            answers: [
+                { text: "Osteon", correct: true },
+                { text: "Osteoblast", correct: false },
+                { text: "Trabecula", correct: false },
+                { text: "Lacuna", correct: false },
+                { text: "Osteocyte", correct: false },
+            ]
+        },
+        {
+            question: "The primary inorganic component of bone matrix is:",
+            answers: [
+                { text: "Calcium phosphate", correct: true },
+                { text: "Glycosaminoglycans", correct: false },
+                { text: "Elastin", correct: false },
+                { text: "Calcium carbonate", correct: false },
+                { text: "Collagen type I", correct: false },
+            ]
+        },
+        {
+            question: "The bone cells responsible for resorption are:",
+            answers: [
+                { text: "Osteoclasts", correct: true },
+                { text: "Chondrocytes", correct: false },
+                { text: "Fibroblasts", correct: false },
+                { text: "Osteoblasts", correct: false },
+                { text: "Osteocytes", correct: false },
+            ]
+        },
+        {
+            question: "Which bone is formed entirely by intramembranous ossification?",
+            answers: [
+                { text: "Clavicle", correct: true },
+                { text: "Vertebra", correct: false },
+                { text: "Ribs", correct: false },
+                { text: "Femur", correct: false },
+                { text: "Humerus", correct: false },
+            ]
+        },
+        {
+            question: "The periosteum is absent on which surface of bone?",
+            answers: [
+                { text: "Epiphysis", correct: true },
+                { text: "Medullary cavity", correct: false },
+                { text: "Shaft surface", correct: false },
+                { text: "Diaphysis", correct: false },
+                { text: "Metaphysis", correct: false },
+            ]
+        },
+        {
+            question: "The microscopic channel connecting neighboring lacunae is called:",
+            answers: [
+                { text: "Canaliculus", correct: true },
+                { text: "Haversian canal", correct: false },
+                { text: "Volkmann’s canal", correct: false },
+                { text: "Lamella", correct: false },
+                { text: "Trabecula", correct: false },
+            ]
+        },
+        {
+            question: "The most important factor regulating bone remodeling is:",
+            answers: [
+                { text: "Mechanical stress", correct: true },
+                { text: "Parathyroid hormone", correct: false },
+                { text: "Calcitonin", correct: false },
+                { text: "Estrogen", correct: false },
+                { text: "Vitamin D", correct: false },
+            ]
+        },
+        {
+            question: "The primary center of ossification in long bones appears:",
+            answers: [
+                { text: "At the diaphysis during fetal life", correct: true },
+                { text: "After birth in the metaphysis", correct: false },
+                { text: "Simultaneously in epiphysis and diaphysis", correct: false },
+                { text: "In periosteal bone collar", correct: false },
+                { text: "At the epiphysis before birth", correct: false },
+            ]
+        },
+        {
+            question: "The periosteum contributes to bone growth primarily by:",
+            answers: [
+                { text: "Appositional growth", correct: true },
+                { text: "Interstitial growth", correct: false },
+                { text: "Endochondral growth", correct: false },
+                { text: "Epiphyseal expansion", correct: false },
+                { text: "Intramembranous resorption", correct: false },
+            ]
+        },
+        {
+            question: "The zone of hypertrophy in an epiphyseal growth plate is characterized by:",
+            answers: [
+                { text: "Enlargement of chondrocytes with glycogen accumulation", correct: true },
+                { text: "Invasion by osteogenic cells", correct: false },
+                { text: "Replacement of cartilage by bone", correct: false },
+                { text: "Active proliferation of chondrocytes", correct: false },
+                { text: "Calcification of cartilage matrix", correct: false },
+            ]
+        },
+        {
+            question: "During endochondral ossification, the hypertrophic chondrocytes secrete:",
+            answers: [
+                { text: "Alkaline phosphatase", correct: true },
+                { text: "Osteocalcin", correct: false },
+                { text: "Osteonectin", correct: false },
+                { text: "Collagen type IV", correct: false },
+                { text: "Osteopontin", correct: false },
+            ]
+        },
+        {
+            question: "The main collagen type found in bone matrix is:",
+            answers: [
+                { text: "Type I", correct: true },
+                { text: "Type II", correct: false },
+                { text: "Type III", correct: false },
+                { text: "Type IV", correct: false },
+                { text: "Type V", correct: false },
+            ]
+        },
+        {
+            question: "The ossification center that appears after birth in the long bones is:",
+            answers: [
+                { text: "Secondary center", correct: true },
+                { text: "Accessory center", correct: false },
+                { text: "Membranous center", correct: false },
+                { text: "Endochondral center", correct: false },
+                { text: "Primary center", correct: false },
+            ]
+        },
+        {
+            question: "Which type of lamella lies between adjacent osteons in compact bone?",
+            answers: [
+                { text: "Interstitial lamella", correct: true },
+                { text: "Concentric lamella", correct: false },
+                { text: "Endosteal lamella", correct: false },
+                { text: "Periosteal lamella", correct: false },
+                { text: "Circumferential lamella", correct: false },
+            ]
+        },
+        {
+            question: "Fibrous joints are united by:",
+            answers: [
+                { text: "Dense connective tissue", correct: true },
+                { text: "Synovial membrane", correct: false },
+                { text: "Ligamentum flavum", correct: false },
+                { text: "Fluid-filled capsule", correct: false },
+                { text: "Cartilage", correct: false },
+            ]
+        },
+        {
+            question: "The type of fibrous joint between the bones of the skull is:",
+            answers: [
+                { text: "Suture", correct: true },
+                { text: "Symphysis", correct: false },
+                { text: "Synchondrosis", correct: false },
+                { text: "Synovial joint", correct: false },
+                { text: "Syndesmosis", correct: false },
+            ]
+        },
+        {
+            question: "The only example of a gomphosis joint in the body is:",
+            answers: [
+                { text: "Tooth in its socket", correct: true },
+                { text: "Interosseous membrane", correct: false },
+                { text: "Pubic symphysis", correct: false },
+                { text: "Radioulnar joint", correct: false },
+                { text: "Tibiofibular joint", correct: false },
+            ]
+        },
+        {
+            question: "The joint between the first rib and sternum is an example of:",
+            answers: [
+                { text: "Primary cartilaginous joint", correct: true },
+                { text: "Secondary cartilaginous joint", correct: false },
+                { text: "Fibrous joint", correct: false },
+                { text: "Symphysis", correct: false },
+                { text: "Synovial joint", correct: false },
+            ]
+        },
+        {
+            question: "The intervertebral discs are examples of:",
+            answers: [
+                { text: "Symphyses", correct: true },
+                { text: "Syndesmoses", correct: false },
+                { text: "Sutures", correct: false },
+                { text: "Synovial joints", correct: false },
+                { text: "Synchondroses", correct: false },
+            ]
+        },
+        {
+            question: "Which structure lines the inner surface of a synovial joint capsule?",
+            answers: [
+                { text: "Synovial membrane", correct: true },
+                { text: "Articular cartilage", correct: false },
+                { text: "Ligamentum teres", correct: false },
+                { text: "Perichondrium", correct: false },
+                { text: "Fibrous membrane", correct: false },
+            ]
+        },
+        {
+            question: "The cruciate ligaments of the knee are so named because they:",
+            answers: [
+                { text: "Cross each other in the sagittal plane", correct: true },
+                { text: "Cross each other in the coronal plane", correct: false },
+                { text: "Cross each other within the joint capsule", correct: false },
+                { text: "Cross each other outside the capsule", correct: false },
+                { text: "Attach to both menisci", correct: false },
+            ]
+        },
+        {
+            question: "The main stabilizer preventing forward displacement of the tibia on the femur is:",
+            answers: [
+                { text: "Anterior cruciate ligament", correct: true },
+                { text: "Posterior cruciate ligament", correct: false },
+                { text: "Medial collateral ligament", correct: false },
+                { text: "Popliteus muscle", correct: false },
+                { text: "Meniscofemoral ligament", correct: false },
+            ]
+        },
+        {
+            question: "The fibrocartilaginous structure that deepens the shoulder socket is:",
+            answers: [
+                { text: "Glenoid labrum", correct: true },
+                { text: "Articular disc", correct: false },
+                { text: "Glenohumeral ligament", correct: false },
+                { text: "Transverse humeral ligament", correct: false },
+                { text: "Acetabular labrum", correct: false },
+            ]
+        },
+        {
+            question: "The joint between the distal ends of tibia and fibula is functionally a:",
+            answers: [
+                { text: "Syndesmosis", correct: true },
+                { text: "Symphysis", correct: false },
+                { text: "Plane synovial joint", correct: false },
+                { text: "Hinge joint", correct: false },
+                { text: "Synchondrosis", correct: false },
+            ]
+        },
+        {
+            question: "The ligamentum teres (round ligament) of the hip joint:",
+            answers: [
+                { text: "Carries a branch of the obturator artery", correct: true },
+                { text: "Limits abduction of thigh", correct: false },
+                { text: "Is extracapsular", correct: false },
+                { text: "Is composed of elastic fibers", correct: false },
+                { text: "Strengthens the capsule anteriorly", correct: false },
+            ]
+        },
+        {
+            question: "Which joint exhibits both hinge and gliding movements?",
+            answers: [
+                { text: "Temporomandibular joint", correct: true },
+                { text: "Interphalangeal joint", correct: false },
+                { text: "Elbow joint", correct: false },
+                { text: "Knee joint", correct: false },
+                { text: "Ankle joint", correct: false },
+            ]
+        },
+        {
+            question: "The atlanto-occipital joint permits mainly:",
+            answers: [
+                { text: "Flexion and extension", correct: true },
+                { text: "Lateral bending only", correct: false },
+                { text: "Gliding", correct: false },
+                { text: "Circumduction", correct: false },
+                { text: "Rotation", correct: false },
+            ]
+        },
+        {
+            question: "The “screw-home” mechanism at the knee joint refers to:",
+            answers: [
+                { text: "Lateral rotation of tibia on femur during final extension", correct: true },
+                { text: "Gliding of femoral condyles on tibia during flexion", correct: false },
+                { text: "Axial rotation of fibula with dorsiflexion", correct: false },
+                { text: "Lateral rotation of femur on tibia during flexion", correct: false },
+                { text: "Medial rotation of femur on tibia during extension", correct: false },
+            ]
+        },
+        {
+            question: "The structural and functional unit of skeletal muscle is:",
+            answers: [
+                { text: "Sarcomere", correct: true },
+                { text: "Myofibril", correct: false },
+                { text: "Sarcolemma", correct: false },
+                { text: "Myofilament", correct: false },
+                { text: "Motor end plate", correct: false },
+            ]
+        },
+        {
+            question: "The connective tissue covering an individual muscle fiber is:",
+            answers: [
+                { text: "Endomysium", correct: true },
+                { text: "Sarcolemma", correct: false },
+                { text: "Fascia", correct: false },
+                { text: "Epimysium", correct: false },
+                { text: "Perimysium", correct: false },
+            ]
+        },
+        {
+            question: "The functional connection between a motor neuron and muscle fiber is called:",
+            answers: [
+                { text: "Neuromuscular junction", correct: true },
+                { text: "Intercalated disc", correct: false },
+                { text: "Gap junction", correct: false },
+                { text: "Sarcomere", correct: false },
+                { text: "Synapse", correct: false },
+            ]
+        },
+        {
+            question: "Muscle responsible for producing a specific movement is termed:",
+            answers: [
+                { text: "Agonist", correct: true },
+                { text: "Synergist", correct: false },
+                { text: "Neutralizer", correct: false },
+                { text: "Antagonist", correct: false },
+                { text: "Fixator", correct: false },
+            ]
+        },
+        {
+            question: "Which type of muscle is involuntary and non-striated?",
+            answers: [
+                { text: "Smooth muscle", correct: true },
+                { text: "Mixed muscle", correct: false },
+                { text: "Voluntary visceral muscle", correct: false },
+                { text: "Skeletal muscle", correct: false },
+                { text: "Cardiac muscle", correct: false },
+            ]
+        },
+        {
+            question: "Cardiac muscle differs from skeletal muscle because:",
+            answers: [
+                { text: "It has intercalated discs and branching fibers", correct: true },
+                { text: "It lacks T-tubules", correct: false },
+                { text: "It contracts under somatic control", correct: false },
+                { text: "It is multinucleated", correct: false },
+                { text: "It lacks sarcomeres", correct: false },
+            ]
+        },
+        {
+            question: "The source of calcium for skeletal muscle contraction is:",
+            answers: [
+                { text: "Sarcoplasmic reticulum", correct: true },
+                { text: "Plasma membrane", correct: false },
+                { text: "Endoplasmic reticulum", correct: false },
+                { text: "T-tubules", correct: false },
+                { text: "Mitochondria", correct: false },
+            ]
+        },
+        {
+            question: "The neurotransmitter released at the neuromuscular junction is:",
+            answers: [
+                { text: "Acetylcholine", correct: true },
+                { text: "Noradrenaline", correct: false },
+                { text: "GABA", correct: false },
+                { text: "Dopamine", correct: false },
+                { text: "Serotonin", correct: false },
+            ]
+        },
+        {
+            question: "The motor unit in skeletal muscle refers to:",
+            answers: [
+                { text: "A single motor neuron and all the fibers it supplies", correct: true },
+                { text: "A muscle fascicle and its perimysium", correct: false },
+                { text: "Several adjacent muscles working together", correct: false },
+                { text: "A synapse between two motor neurons", correct: false },
+                { text: "A group of myofibrils within a single fiber", correct: false },
+            ]
+        },
+        {
+            question: "Which ion is essential for exposure of myosin-binding sites on actin filaments during contraction?",
+            answers: [
+                { text: "Calcium", correct: true },
+                { text: "Magnesium", correct: false },
+                { text: "Chloride", correct: false },
+                { text: "Sodium", correct: false },
+                { text: "Potassium", correct: false },
+            ]
+        },
+        {
+            question: "The dark bands of skeletal muscle correspond to:",
+            answers: [
+                { text: "Regions containing both actin and myosin", correct: true },
+                { text: "Regions with Z-lines", correct: false },
+                { text: "Regions with H-zones only", correct: false },
+                { text: "Regions containing actin only", correct: false },
+                { text: "Regions containing myosin only", correct: false },
+            ]
+        },
+        {
+            question: "The histological difference between skeletal and cardiac muscle is:",
+            answers: [
+                { text: "Presence of intercalated discs in cardiac only", correct: true },
+                { text: "Multinucleation in cardiac only", correct: false },
+                { text: "Absence of T-tubules in cardiac", correct: false },
+                { text: "Absence of sarcomeres in cardiac", correct: false },
+                { text: "Presence of striations in skeletal only", correct: false },
+            ]
+        },
+        {
+            question: "The resting membrane potential of a skeletal muscle fiber is approximately:",
+            answers: [
+                { text: "−90 mV", correct: true },
+                { text: "−70 mV", correct: false },
+                { text: "−30 mV", correct: false },
+                { text: "−20 mV", correct: false },
+                { text: "−110 mV", correct: false },
+            ]
+        },
+        {
+            question: "Red (slow-twitch) muscle fibers differ from white (fast-twitch) fibers by having:",
+            answers: [
+                { text: "More mitochondria and more myoglobin", correct: true },
+                { text: "More glycogen stores", correct: false },
+                { text: "Faster contraction speed", correct: false },
+                { text: "Anaerobic metabolism", correct: false },
+                { text: "Less mitochondria and less myoglobin", correct: false },
+            ]
+        },
+        {
+            question: "The absence or mutation of the dystrophin protein results in:",
+            answers: [
+                { text: "Duchenne muscular dystrophy", correct: true },
+                { text: "Myasthenia gravis", correct: false },
+                { text: "Lambert-Eaton syndrome", correct: false },
+                { text: "Rhabdomyolysis", correct: false },
+                { text: "Becker muscular dystrophy", correct: false },
+            ]
+        },
+        {
+            question: "The dense bodies in smooth muscle serve a role analogous to which structure in skeletal muscle?",
+            answers: [
+                { text: "Z line", correct: true },
+                { text: "H line", correct: false },
+                { text: "M line", correct: false },
+                { text: "Sarcolemma", correct: false },
+                { text: "Triad", correct: false },
+            ]
+        },
+        {
+            question: "The peritoneum is a:",
+            answers: [
+                { text: "Serous membrane lining the abdominal cavity", correct: true },
+                { text: "Cartilaginous layer around viscera", correct: false },
+                { text: "Muscular layer of intestines", correct: false },
+                { text: "Connective tissue capsule of organs", correct: false },
+                { text: "Fibrous membrane covering muscles", correct: false },
+            ]
+        },
+        {
+            question: "The double fold of peritoneum connecting the small intestine to the posterior abdominal wall is called:",
+            answers: [
+                { text: "Mesentery", correct: true },
+                { text: "Ligamentum teres", correct: false },
+                { text: "Falciform ligament", correct: false },
+                { text: "Peritoneal recess", correct: false },
+                { text: "Omentum", correct: false },
+            ]
+        },
+        {
+            question: "The organ primarily involved in bile production is:",
+            answers: [
+                { text: "Liver", correct: true },
+                { text: "Pancreas", correct: false },
+                { text: "Gallbladder", correct: false },
+                { text: "Spleen", correct: false },
+                { text: "Stomach", correct: false },
+            ]
+        },
+        {
+            question: "The trachea bifurcates into right and left bronchi at the level of:",
+            answers: [
+                { text: "T4–T5 intervertebral disc", correct: true },
+                { text: "T7 vertebra", correct: false },
+                { text: "C7 vertebra", correct: false },
+                { text: "C5 vertebra", correct: false },
+                { text: "T1 vertebra", correct: false },
+            ]
+        },
+        {
+            question: "The functional unit of the kidney is:",
+            answers: [
+                { text: "Nephron", correct: true },
+                { text: "Glomerulus", correct: false },
+                { text: "Loop of Henle", correct: false },
+                { text: "Collecting duct", correct: false },
+                { text: "Renal corpuscle", correct: false },
+            ]
+        },
+        {
+            question: "The epithelium lining the alveoli of the lungs is:",
+            answers: [
+                { text: "Simple squamous", correct: true },
+                { text: "Pseudostratified ciliated", correct: false },
+                { text: "Simple columnar", correct: false },
+                { text: "Simple cuboidal", correct: false },
+                { text: "Stratified squamous", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following organs is retroperitoneal in position?",
+            answers: [
+                { text: "Kidney", correct: true },
+                { text: "Spleen", correct: false },
+                { text: "Jejunum", correct: false },
+                { text: "Stomach", correct: false },
+                { text: "Liver", correct: false },
+            ]
+        },
+        {
+            question: "The serous membrane covering the lungs is called:",
+            answers: [
+                { text: "Pleura", correct: true },
+                { text: "Pericardium", correct: false },
+                { text: "Mesentery", correct: false },
+                { text: "Endothelium", correct: false },
+                { text: "Peritoneum", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following organs is not part of the alimentary canal?",
+            answers: [
+                { text: "Pancreas", correct: true },
+                { text: "Stomach", correct: false },
+                { text: "Large intestine", correct: false },
+                { text: "Small intestine", correct: false },
+                { text: "Esophagus", correct: false },
+            ]
+        },
+        {
+            question: "The stomach opens into the duodenum through the:",
+            answers: [
+                { text: "Pyloric orifice", correct: true },
+                { text: "Esophageal hiatus", correct: false },
+                { text: "Gastric canal", correct: false },
+                { text: "Cardiac orifice", correct: false },
+                { text: "Ileocecal valve", correct: false },
+            ]
+        },
+        {
+            question: "The spleen is mainly concerned with:",
+            answers: [
+                { text: "Filtration of blood and immune response", correct: true },
+                { text: "Production of bile", correct: false },
+                { text: "Storage of urine", correct: false },
+                { text: "Absorption of lipids", correct: false },
+                { text: "Digestion", correct: false },
+            ]
+        },
+        {
+            question: "The urinary bladder epithelium is classified as:",
+            answers: [
+                { text: "Transitional epithelium", correct: true },
+                { text: "Simple columnar", correct: false },
+                { text: "Pseudostratified ciliated columnar", correct: false },
+                { text: "Stratified squamous", correct: false },
+                { text: "Simple cuboidal", correct: false },
+            ]
+        },
+        {
+            question: "The pancreas is both an endocrine and exocrine organ because:",
+            answers: [
+                { text: "It secretes enzymes and hormones", correct: true },
+                { text: "It is surrounded by both capsule and peritoneum", correct: false },
+                { text: "It contains bile ducts and portal triads", correct: false },
+                { text: "It connects directly to duodenum and liver", correct: false },
+                { text: "It stores and concentrates bile", correct: false },
+            ]
+        },
+        {
+            question: "Which structure prevents reflux of gastric contents into the esophagus?",
+            answers: [
+                { text: "Cardiac sphincter", correct: true },
+                { text: "Cricopharyngeal sphincter", correct: false },
+                { text: "Ileocecal valve", correct: false },
+                { text: "Oropharyngeal isthmus", correct: false },
+                { text: "Pyloric sphincter", correct: false },
+            ]
+        },
+        {
+            question: "The muscular layer of the gastrointestinal tract responsible for peristalsis consists of:",
+            answers: [
+                { text: "Longitudinal and circular smooth muscle layers", correct: true },
+                { text: "Transverse skeletal fibers", correct: false },
+                { text: "Circular skeletal muscle", correct: false },
+                { text: "Elastic tissue", correct: false },
+                { text: "Circular and oblique fibers", correct: false },
+            ]
+        },
+        {
+            question: "The histological lining of the small intestine is:",
+            answers: [
+                { text: "Simple columnar epithelium with microvilli", correct: true },
+                { text: "Transitional epithelium", correct: false },
+                { text: "Pseudostratified columnar ciliated epithelium", correct: false },
+                { text: "Stratified squamous epithelium", correct: false },
+                { text: "Simple squamous epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The lymph from most of the abdominal viscera drains into:",
+            answers: [
+                { text: "Lumbar trunks → Cisterna chyli → Thoracic duct", correct: true },
+                { text: "Right lymphatic duct", correct: false },
+                { text: "Deep cervical nodes", correct: false },
+                { text: "Superficial inguinal nodes", correct: false },
+                { text: "Bronchomediastinal trunk", correct: false },
+            ]
+        },
+        {
+            question: "The nerve supply to the parotid gland is derived from:",
+            answers: [
+                { text: "Glossopharyngeal nerve via otic ganglion", correct: true },
+                { text: "Trigeminal nerve (maxillary division)", correct: false },
+                { text: "Vagus nerve", correct: false },
+                { text: "Hypoglossal nerve", correct: false },
+                { text: "Facial nerve", correct: false },
+            ]
+        },
+        {
+            question: "The heart is located in which part of the thoracic cavity?",
+            answers: [
+                { text: "Mediastinum", correct: true },
+                { text: "Pericardial recess", correct: false },
+                { text: "Costodiaphragmatic recess", correct: false },
+                { text: "Thoracic inlet", correct: false },
+                { text: "Pleural cavity", correct: false },
+            ]
+        },
+        {
+            question: "The right atrium receives venous blood from:",
+            answers: [
+                { text: "Superior and inferior vena cava, and coronary sinus", correct: true },
+                { text: "Aorta and pulmonary artery", correct: false },
+                { text: "Pulmonary trunk and aortic sinus", correct: false },
+                { text: "Bronchial veins and azygos vein", correct: false },
+                { text: "Pulmonary veins and coronary sinus", correct: false },
+            ]
+        },
+        {
+            question: "The valve located between the left atrium and left ventricle is the:",
+            answers: [
+                { text: "Mitral valve", correct: true },
+                { text: "Coronary valve", correct: false },
+                { text: "Tricuspid valve", correct: false },
+                { text: "Aortic valve", correct: false },
+                { text: "Pulmonary valve", correct: false },
+            ]
+        },
+        {
+            question: "Which blood vessel carries oxygenated blood from the lungs to the heart?",
+            answers: [
+                { text: "Pulmonary vein", correct: true },
+                { text: "Coronary artery", correct: false },
+                { text: "Aorta", correct: false },
+                { text: "Bronchial vein", correct: false },
+                { text: "Pulmonary artery", correct: false },
+            ]
+        },
+        {
+            question: "The wall of the left ventricle is thicker than the right ventricle because:",
+            answers: [
+                { text: "It pumps blood to the entire body", correct: true },
+                { text: "It has a smaller cavity", correct: false },
+                { text: "It has fewer coronary branches", correct: false },
+                { text: "It pumps blood to lungs only", correct: false },
+                { text: "It contains more valves", correct: false },
+            ]
+        },
+        {
+            question: "The pericardial sac consists of:",
+            answers: [
+                { text: "Fibrous and serous layers", correct: true },
+                { text: "Parietal and fibrous layers only", correct: false },
+                { text: "Two fibrous layers", correct: false },
+                { text: "Serous layer only", correct: false },
+                { text: "Only visceral pericardium", correct: false },
+            ]
+        },
+        {
+            question: "The SA node, the pacemaker of the heart, is located in the:",
+            answers: [
+                { text: "Right atrial wall near the superior vena cava", correct: true },
+                { text: "Left atrial wall near pulmonary veins", correct: false },
+                { text: "Interatrial septum", correct: false },
+                { text: "Right ventricle wall", correct: false },
+                { text: "Apex of the heart", correct: false },
+            ]
+        },
+        {
+            question: "The blood vessel that supplies oxygenated blood to the heart muscle itself is:",
+            answers: [
+                { text: "Coronary arteries", correct: true },
+                { text: "Brachiocephalic artery", correct: false },
+                { text: "Aortic arch", correct: false },
+                { text: "Subclavian artery", correct: false },
+                { text: "Pulmonary vein", correct: false },
+            ]
+        },
+        {
+            question: "The thick middle layer of the heart wall composed of cardiac muscle is called:",
+            answers: [
+                { text: "Myocardium", correct: true },
+                { text: "Pericardium", correct: false },
+                { text: "Mesocardium", correct: false },
+                { text: "Endocardium", correct: false },
+                { text: "Epicardium", correct: false },
+            ]
+        },
+        {
+            question: "The tunica intima of a blood vessel consists mainly of:",
+            answers: [
+                { text: "Endothelium and connective tissue", correct: true },
+                { text: "Collagen fibers and pericytes", correct: false },
+                { text: "Cardiac muscle fibers", correct: false },
+                { text: "Adventitial fibroblasts", correct: false },
+                { text: "Smooth muscle and elastic tissue", correct: false },
+            ]
+        },
+        {
+            question: "The microscopic vessels where exchange of gases and nutrients occurs are:",
+            answers: [
+                { text: "Capillaries", correct: true },
+                { text: "Venules", correct: false },
+                { text: "Veins", correct: false },
+                { text: "Lymphatics", correct: false },
+                { text: "Arterioles", correct: false },
+            ]
+        },
+        {
+            question: "The right coronary artery most commonly gives rise to which of the following branches?",
+            answers: [
+                { text: "Posterior interventricular artery", correct: true },
+                { text: "Marginal artery of left ventricle", correct: false },
+                { text: "Great cardiac vein", correct: false },
+                { text: "Left anterior descending artery", correct: false },
+                { text: "Circumflex artery", correct: false },
+            ]
+        },
+        {
+            question: "The fibrous skeleton of the heart provides attachment to:",
+            answers: [
+                { text: "Cardiac muscle and valves", correct: true },
+                { text: "Epicardium and pericardium", correct: false },
+                { text: "Purkinje fibers", correct: false },
+                { text: "Only myocardium", correct: false },
+                { text: "Only endocardium", correct: false },
+            ]
+        },
+        {
+            question: "The coronary sinus opens into the right atrium between:",
+            answers: [
+                { text: "IVC and tricuspid valve", correct: true },
+                { text: "SVC and tricuspid valve", correct: false },
+                { text: "SVC and coronary sulcus", correct: false },
+                { text: "IVC and pulmonary veins", correct: false },
+                { text: "Crista terminalis and SVC", correct: false },
+            ]
+        },
+        {
+            question: "The layer of the arterial wall that determines vessel elasticity is:",
+            answers: [
+                { text: "Tunica media", correct: true },
+                { text: "Tunica adventitia", correct: false },
+                { text: "Internal elastic lamina", correct: false },
+                { text: "Endothelium", correct: false },
+                { text: "Tunica intima", correct: false },
+            ]
+        },
+        {
+            question: "The cardiac conducting system transmits the impulse from the atria to the ventricles through:",
+            answers: [
+                { text: "Bundle of His", correct: true },
+                { text: "SA node", correct: false },
+                { text: "Purkinje fibers", correct: false },
+                { text: "Internodal tracts", correct: false },
+                { text: "Bachmann’s bundle", correct: false },
+            ]
+        },
+        {
+            question: "The characteristic feature distinguishing cardiac muscle histologically is the presence of:",
+            answers: [
+                { text: "Central nuclei and intercalated discs", correct: true },
+                { text: "Peripheral nuclei and no striations", correct: false },
+                { text: "Multiple nuclei and no discs", correct: false },
+                { text: "No branching fibers", correct: false },
+                { text: "Peripheral nuclei and intercalated discs", correct: false },
+            ]
+        },
+        {
+            question: "The thoracic aorta begins at the level of:",
+            answers: [
+                { text: "T4 vertebra", correct: true },
+                { text: "T5 vertebra", correct: false },
+                { text: "T6 vertebra", correct: false },
+                { text: "T7 vertebra", correct: false },
+                { text: "T8 vertebra", correct: false },
+            ]
+        },
+        {
+            question: "The first branch of the aortic arch is:",
+            answers: [
+                { text: "Brachiocephalic trunk", correct: true },
+                { text: "Left subclavian artery", correct: false },
+                { text: "Right common carotid artery", correct: false },
+                { text: "Internal thoracic artery", correct: false },
+                { text: "Left common carotid artery", correct: false },
+            ]
+        },
+        {
+            question: "The capillaries that allow large molecules and cells to pass through their discontinuous endothelium are called:",
+            answers: [
+                { text: "Sinusoidal capillaries", correct: true },
+                { text: "Anastomotic capillaries", correct: false },
+                { text: "End-arteriolar capillaries", correct: false },
+                { text: "Continuous capillaries", correct: false },
+                { text: "Fenestrated capillaries", correct: false },
+            ]
+        },
+        {
+            question: "The functional unit of the nervous system is the:",
+            answers: [
+                { text: "Neuron", correct: true },
+                { text: "Axon", correct: false },
+                { text: "Dendrite", correct: false },
+                { text: "Synapse", correct: false },
+                { text: "Glial cell", correct: false },
+            ]
+        },
+        {
+            question: "The outermost meningeal covering of the brain is:",
+            answers: [
+                { text: "Dura mater", correct: true },
+                { text: "Pia mater", correct: false },
+                { text: "Arachnoid mater", correct: false },
+                { text: "Endoneurium", correct: false },
+                { text: "Perineurium", correct: false },
+            ]
+        },
+        {
+            question: "The cerebrospinal fluid (CSF) is secreted mainly by:",
+            answers: [
+                { text: "Choroid plexus", correct: true },
+                { text: "Pia mater", correct: false },
+                { text: "Corpus callosum", correct: false },
+                { text: "Pineal gland", correct: false },
+                { text: "Arachnoid villi", correct: false },
+            ]
+        },
+        {
+            question: "The structural and functional connection between the two cerebral hemispheres is formed by:",
+            answers: [
+                { text: "Corpus callosum", correct: true },
+                { text: "Thalamus", correct: false },
+                { text: "Septum pellucidum", correct: false },
+                { text: "Fornix", correct: false },
+                { text: "Internal capsule", correct: false },
+            ]
+        },
+        {
+            question: "The gray matter of the CNS consists mainly of:",
+            answers: [
+                { text: "Unmyelinated neurons, dendrites, and glial cells", correct: true },
+                { text: "Connective tissue", correct: false },
+                { text: "Blood vessels only", correct: false },
+                { text: "Schwann cells", correct: false },
+                { text: "Myelinated axons", correct: false },
+            ]
+        },
+        {
+            question: "Which part of the brain regulates balance and coordination?",
+            answers: [
+                { text: "Cerebellum", correct: true },
+                { text: "Pons", correct: false },
+                { text: "Thalamus", correct: false },
+                { text: "Medulla oblongata", correct: false },
+                { text: "Midbrain", correct: false },
+            ]
+        },
+        {
+            question: "The blood–brain barrier (BBB) is primarily formed by:",
+            answers: [
+                { text: "Astrocytes and endothelial tight junctions", correct: true },
+                { text: "Oligodendrocytes and neurons", correct: false },
+                { text: "Ependymal cells only", correct: false },
+                { text: "Meningeal layers", correct: false },
+                { text: "Microglia", correct: false },
+            ]
+        },
+        {
+            question: "Which tract carries motor commands from the cerebral cortex to the spinal cord?",
+            answers: [
+                { text: "Corticospinal tract", correct: true },
+                { text: "Spinocerebellar tract", correct: false },
+                { text: "Vestibulospinal tract", correct: false },
+                { text: "Reticulospinal tract", correct: false },
+                { text: "Spinothalamic tract", correct: false },
+            ]
+        },
+        {
+            question: "The spinal cord terminates in adults at the level of:",
+            answers: [
+                { text: "L1–L2", correct: true },
+                { text: "T12", correct: false },
+                { text: "S1", correct: false },
+                { text: "T10", correct: false },
+                { text: "T8 vertebra", correct: false },
+            ]
+        },
+        {
+            question: "Which part of the brain regulates balance and coordination?",
+            answers: [
+                { text: "Cerebellum", correct: true },
+                { text: "Cerebrum", correct: false },
+                { text: "Thalamus", correct: false },
+                { text: "Medulla oblongata", correct: false },
+                { text: "Hypothalamus", correct: false },
+            ]
+        },
+        {
+            question: "The anterior horn of the spinal cord contains:",
+            answers: [
+                { text: "Motor neurons", correct: true },
+                { text: "Association neurons", correct: false },
+                { text: "Preganglionic sympathetic neurons", correct: false },
+                { text: "Interneurons only", correct: false },
+                { text: "Sensory neurons", correct: false },
+            ]
+        },
+        {
+            question: "The visual cortex corresponds to which Brodmann area?",
+            answers: [
+                { text: "Area 17", correct: true },
+                { text: "Area 4", correct: false },
+                { text: "Area 1, 2, 3", correct: false },
+                { text: "Area 22", correct: false },
+                { text: "Area 11", correct: false },
+            ]
+        },
+        {
+            question: "The hippocampus plays a crucial role in:",
+            answers: [
+                { text: "Long-term memory consolidation", correct: true },
+                { text: "Fear response modulation", correct: false },
+                { text: "Visual processing", correct: false },
+                { text: "Language articulation", correct: false },
+                { text: "Motor coordination", correct: false },
+            ]
+        },
+        {
+            question: "The anterior cerebral artery supplies which functional cortical area?",
+            answers: [
+                { text: "Motor area for lower limb", correct: true },
+                { text: "Sensory area for upper limb", correct: false },
+                { text: "Broca’s area", correct: false },
+                { text: "Visual cortex", correct: false },
+                { text: "Auditory cortex", correct: false },
+            ]
+        },
+        {
+            question: "Which glial cell forms the myelin sheath in the central nervous system?",
+            answers: [
+                { text: "Oligodendrocyte", correct: true },
+                { text: "Astrocyte", correct: false },
+                { text: "Microglia", correct: false },
+                { text: "Satellite cell", correct: false },
+                { text: "Schwann cell", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following tracts carries pain and temperature sensation?",
+            answers: [
+                { text: "Lateral spinothalamic tract", correct: true },
+                { text: "Dorsal column tract", correct: false },
+                { text: "Corticospinal tract", correct: false },
+                { text: "Medial lemniscus", correct: false },
+                { text: "Spinocerebellar tract", correct: false },
+            ]
+        },
+        {
+            question: "The reticular activating system (RAS) is primarily responsible for:",
+            answers: [
+                { text: "Consciousness and arousal", correct: true },
+                { text: "Balance and coordination", correct: false },
+                { text: "Vision", correct: false },
+                { text: "Pain inhibition only", correct: false },
+                { text: "Temperature regulation", correct: false },
+            ]
+        },
+        {
+            question: "The main blood supply to the visual cortex (area 17) is provided by the:",
+            answers: [
+                { text: "Posterior cerebral artery", correct: true },
+                { text: "Middle cerebral artery", correct: false },
+                { text: "Anterior cerebral artery", correct: false },
+                { text: "Vertebral artery", correct: false },
+                { text: "Basilar artery", correct: false },
+            ]
+        },
+        {
+            question: "Lesion of the posterior limb of the internal capsule causes:",
+            answers: [
+                { text: "Contralateral hemiplegia and sensory loss", correct: true },
+                { text: "Bilateral weakness", correct: false },
+                { text: "Pure motor loss of cranial nerves", correct: false },
+                { text: "Upper limb weakness only", correct: false },
+                { text: "Ipsilateral sensory loss", correct: false },
+            ]
+        },
+        {
+            question: "The tentorium cerebelli separates:",
+            answers: [
+                { text: "Cerebrum from cerebellum", correct: true },
+                { text: "Cerebrum from medulla", correct: false },
+                { text: "Pons from midbrain", correct: false },
+                { text: "Cerebellum from medulla", correct: false },
+                { text: "Thalamus from hypothalamus", correct: false },
+            ]
+        },
+        {
+            question: "Damage to the posterior column–medial lemniscus pathway leads to loss of:",
+            answers: [
+                { text: "Fine touch, vibration, and proprioception", correct: true },
+                { text: "Pain only", correct: false },
+                { text: "Temperature only", correct: false },
+                { text: "Pain and temperature sensation", correct: false },
+                { text: "Crude touch and pressure", correct: false },
+            ]
+        },
+        {
+            question: "The tract responsible for proprioception from the lower limbs is:",
+            answers: [
+                { text: "Dorsal spinocerebellar tract", correct: true },
+                { text: "Medial lemniscus", correct: false },
+                { text: "Reticulospinal tract", correct: false },
+                { text: "Lateral spinothalamic tract", correct: false },
+                { text: "Anterior corticospinal tract", correct: false },
+            ]
+        },
+        {
+            question: "The myelin sheath in the peripheral nervous system is formed by:",
+            answers: [
+                { text: "Schwann cells", correct: true },
+                { text: "Microglia", correct: false },
+                { text: "Satellite cells", correct: false },
+                { text: "Oligodendrocytes", correct: false },
+                { text: "Astrocytes", correct: false },
+            ]
+        },
+        {
+            question: "The cell bodies of sensory neurons are located in:",
+            answers: [
+                { text: "Dorsal root ganglion", correct: true },
+                { text: "Ventral horn", correct: false },
+                { text: "Lateral horn", correct: false },
+                { text: "Cerebral cortex", correct: false },
+                { text: "Anterior horn", correct: false },
+            ]
+        },
+        {
+            question: "Which nerve carries both motor and sensory fibers?",
+            answers: [
+                { text: "Trigeminal nerve", correct: true },
+                { text: "Hypoglossal nerve", correct: false },
+                { text: "Accessory nerve", correct: false },
+                { text: "Olfactory nerve", correct: false },
+                { text: "Optic nerve", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following structures connects the CNS to body parts?",
+            answers: [
+                { text: "Peripheral nerves", correct: true },
+                { text: "Brainstem", correct: false },
+                { text: "Thalamus", correct: false },
+                { text: "Spinal cord", correct: false },
+                { text: "Cerebrum", correct: false },
+            ]
+        },
+        {
+            question: "The smallest structural unit of a nerve is the:",
+            answers: [
+                { text: "Axon", correct: true },
+                { text: "Endoneurium", correct: false },
+                { text: "Perineurium", correct: false },
+                { text: "Epineurium", correct: false },
+                { text: "Fascicle", correct: false },
+            ]
+        },
+        {
+            question: "The motor fibers of the spinal nerve exit through:",
+            answers: [
+                { text: "Ventral root", correct: true },
+                { text: "Dorsal horn", correct: false },
+                { text: "Lateral horn", correct: false },
+                { text: "Posterior column", correct: false },
+                { text: "Dorsal root", correct: false },
+            ]
+        },
+        {
+            question: "Which cranial nerve is purely sensory?",
+            answers: [
+                { text: "Optic", correct: true },
+                { text: "Glossopharyngeal", correct: false },
+                { text: "Vagus", correct: false },
+                { text: "Trigeminal", correct: false },
+                { text: "Facial", correct: false },
+            ]
+        },
+        {
+            question: "Which connective tissue layer surrounds each individual axon in a peripheral nerve?",
+            answers: [
+                { text: "Endoneurium", correct: true },
+                { text: "Epineurium", correct: false },
+                { text: "Perineurium", correct: false },
+                { text: "Neurilemma", correct: false },
+                { text: "Myelin sheath", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is a mixed cranial nerve?",
+            answers: [
+                { text: "Facial", correct: true },
+                { text: "Olfactory", correct: false },
+                { text: "Optic", correct: false },
+                { text: "Hypoglossal", correct: false },
+                { text: "Accessory", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is NOT a characteristic of sympathetic stimulation?",
+            answers: [
+                { text: "Increased digestive activity", correct: true },
+                { text: "Vasoconstriction in skin", correct: false },
+                { text: "Pupil dilation", correct: false },
+                { text: "Bronchodilation", correct: false },
+                { text: "Increased heart rate", correct: false },
+            ]
+        },
+        {
+            question: "Parasympathetic outflow arises from which regions?",
+            answers: [
+                { text: "Craniosacral", correct: true },
+                { text: "Cervicothoracic", correct: false },
+                { text: "Lumbosacral", correct: false },
+                { text: "Medullary only", correct: false },
+                { text: "Thoracolumbar", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following cranial nerves contains parasympathetic fibers?",
+            answers: [
+                { text: "Facial", correct: true },
+                { text: "Vestibulocochlear", correct: false },
+                { text: "Hypoglossal", correct: false },
+                { text: "Optic", correct: false },
+                { text: "Trigeminal", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the arrangement of fibers in a mixed spinal nerve?",
+            answers: [
+                { text: "Both sensory and motor fibers", correct: true },
+                { text: "Only sympathetic fibers", correct: false },
+                { text: "Only parasympathetic fibers", correct: false },
+                { text: "Only sensory fibers", correct: false },
+                { text: "Only motor fibers", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following neurotransmitters is released by preganglionic sympathetic fibers?",
+            answers: [
+                { text: "Acetylcholine", correct: true },
+                { text: "GABA", correct: false },
+                { text: "Serotonin", correct: false },
+                { text: "Noradrenaline", correct: false },
+                { text: "Dopamine", correct: false },
+            ]
+        },
+        {
+            question: "Which cranial nerve carries parasympathetic fibers for lacrimal gland secretion?",
+            answers: [
+                { text: "Facial nerve", correct: true },
+                { text: "Trigeminal nerve", correct: false },
+                { text: "Glossopharyngeal nerve", correct: false },
+                { text: "Oculomotor nerve", correct: false },
+                { text: "Vagus nerve", correct: false },
+            ]
+        },
+        {
+            question: "The type of neurons present in the dorsal root ganglion are:",
+            answers: [
+                { text: "Pseudounipolar", correct: true },
+                { text: "Unipolar", correct: false },
+                { text: "Anaxonic", correct: false },
+                { text: "Multipolar", correct: false },
+                { text: "Bipolar", correct: false },
+            ]
+        },
+        {
+            question: "The dorsal ramus of a spinal nerve supplies:",
+            answers: [
+                { text: "Skin and muscles of the back", correct: true },
+                { text: "Limbs only", correct: false },
+                { text: "Cranial cavity", correct: false },
+                { text: "Only visceral organs", correct: false },
+                { text: "Muscles of the anterior trunk", correct: false },
+            ]
+        },
+        {
+            question: "Which fiber type conducts the fastest nerve impulses?",
+            answers: [
+                { text: "Type A-alpha fibers", correct: true },
+                { text: "Type A-delta fibers", correct: false },
+                { text: "Type B fibers", correct: false },
+                { text: "Type C fibers", correct: false },
+                { text: "Postganglionic sympathetic fibers", correct: false },
+            ]
+        },
+        {
+            question: "Preganglionic sympathetic fibers pass through which structure before synapsing?",
+            answers: [
+                { text: "White ramus communicans", correct: true },
+                { text: "Gray ramus communicans", correct: false },
+                { text: "Dorsal root ganglion", correct: false },
+                { text: "Posterior horn", correct: false },
+                { text: "Lateral column", correct: false },
+            ]
+        },
+        {
+            question: "Which type of sensory receptor detects muscle stretch and contributes to proprioception?",
+            answers: [
+                { text: "Muscle spindle", correct: true },
+                { text: "Meissner’s corpuscle", correct: false },
+                { text: "Merkel disc", correct: false },
+                { text: "Pacinian corpuscle", correct: false },
+                { text: "Ruffini ending", correct: false },
+            ]
+        },
+        {
+            question: "The basic structural and functional unit of life is:",
+            answers: [
+                { text: "Cell", correct: true },
+                { text: "Chromosome", correct: false },
+                { text: "Ribosome", correct: false },
+                { text: "Nucleus", correct: false },
+                { text: "Mitochondrion", correct: false },
+            ]
+        },
+        {
+            question: "The organelle responsible for protein synthesis is:",
+            answers: [
+                { text: "Ribosome", correct: true },
+                { text: "Golgi apparatus", correct: false },
+                { text: "Lysosome", correct: false },
+                { text: "Mitochondrion", correct: false },
+                { text: "Nucleolus", correct: false },
+            ]
+        },
+        {
+            question: "The main function of lysosomes is:",
+            answers: [
+                { text: "Intracellular digestion", correct: true },
+                { text: "Energy production", correct: false },
+                { text: "Lipid storage", correct: false },
+                { text: "DNA replication", correct: false },
+                { text: "Protein synthesis", correct: false },
+            ]
+        },
+        {
+            question: "The cell membrane is composed mainly of:",
+            answers: [
+                { text: "Lipids and proteins", correct: true },
+                { text: "Cholesterol and glycogen", correct: false },
+                { text: "DNA and RNA", correct: false },
+                { text: "Lipids and carbohydrates", correct: false },
+                { text: "Proteins and carbohydrates", correct: false },
+            ]
+        },
+        {
+            question: "The Golgi apparatus is primarily involved in:",
+            answers: [
+                { text: "Protein modification and packaging", correct: true },
+                { text: "Lipid oxidation", correct: false },
+                { text: "Cell division", correct: false },
+                { text: "DNA repair", correct: false },
+                { text: "ATP synthesis", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following organelles lacks a limiting membrane?",
+            answers: [
+                { text: "Ribosome", correct: true },
+                { text: "Endoplasmic reticulum", correct: false },
+                { text: "Mitochondrion", correct: false },
+                { text: "Lysosome", correct: false },
+                { text: "Golgi body", correct: false },
+            ]
+        },
+        {
+            question: "The cell junction that allows direct communication between cells is:",
+            answers: [
+                { text: "Gap junction", correct: true },
+                { text: "Adherens junction", correct: false },
+                { text: "Tight junction", correct: false },
+                { text: "Desmosome", correct: false },
+                { text: "Hemidesmosome", correct: false },
+            ]
+        },
+        {
+            question: "The organelle responsible for detoxification and lipid metabolism is:",
+            answers: [
+                { text: "Smooth endoplasmic reticulum", correct: true },
+                { text: "Rough endoplasmic reticulum", correct: false },
+                { text: "Ribosome", correct: false },
+                { text: "Lysosome", correct: false },
+                { text: "Centriole", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is a non-membranous organelle?",
+            answers: [
+                { text: "Ribosome", correct: true },
+                { text: "Lysosome", correct: false },
+                { text: "Peroxisome", correct: false },
+                { text: "Mitochondrion", correct: false },
+                { text: "Nucleus", correct: false },
+            ]
+        },
+        {
+            question: "The organelle responsible for sorting and packaging secretory products is:",
+            answers: [
+                { text: "Golgi apparatus", correct: true },
+                { text: "Endoplasmic reticulum", correct: false },
+                { text: "Lysosome", correct: false },
+                { text: "Nucleolus", correct: false },
+                { text: "Ribosome", correct: false },
+            ]
+        },
+        {
+            question: "Which organelle plays a major role in the synthesis of steroid hormones?",
+            answers: [
+                { text: "Smooth endoplasmic reticulum", correct: true },
+                { text: "Ribosome", correct: false },
+                { text: "Lysosome", correct: false },
+                { text: "Golgi apparatus", correct: false },
+                { text: "Rough endoplasmic reticulum", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following organelles contain digestive enzymes?",
+            answers: [
+                { text: "Lysosomes", correct: true },
+                { text: "Ribosomes", correct: false },
+                { text: "Golgi complex", correct: false },
+                { text: "Peroxisomes", correct: false },
+                { text: "Mitochondria", correct: false },
+            ]
+        },
+        {
+            question: "The phase of mitosis where sister chromatids separate is:",
+            answers: [
+                { text: "Anaphase", correct: true },
+                { text: "Telophase", correct: false },
+                { text: "Interphase", correct: false },
+                { text: "Prophase", correct: false },
+                { text: "Metaphase", correct: false },
+            ]
+        },
+        {
+            question: "Which organelle is most abundant in cells with high energy demand?",
+            answers: [
+                { text: "Mitochondria", correct: true },
+                { text: "Lysosomes", correct: false },
+                { text: "Ribosomes", correct: false },
+                { text: "Peroxisomes", correct: false },
+                { text: "Golgi bodies", correct: false },
+            ]
+        },
+        {
+            question: "The phase of mitosis in which chromosomes line up along the equator is:",
+            answers: [
+                { text: "Metaphase", correct: true },
+                { text: "Anaphase", correct: false },
+                { text: "Telophase", correct: false },
+                { text: "Interphase", correct: false },
+                { text: "Prophase", correct: false },
+            ]
+        },
+        {
+            question: "The type of epithelial tissue found in the lining of urinary bladder is:",
+            answers: [
+                { text: "Transitional epithelium", correct: true },
+                { text: "Stratified squamous epithelium", correct: false },
+                { text: "Pseudostratified columnar epithelium", correct: false },
+                { text: "Simple cuboidal epithelium", correct: false },
+                { text: "Simple squamous epithelium", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following best describes the interphase stage of the cell cycle?",
+            answers: [
+                { text: "DNA replication occurs", correct: true },
+                { text: "Chromosomes are visible under the microscope", correct: false },
+                { text: "Cytokinesis occurs", correct: false },
+                { text: "The cell is dividing", correct: false },
+                { text: "The cell is metabolically inactive", correct: false },
+            ]
+        },
+        {
+            question: "The nucleolus is mainly concerned with:",
+            answers: [
+                { text: "Ribosomal RNA synthesis", correct: true },
+                { text: "mRNA synthesis", correct: false },
+                { text: "DNA replication", correct: false },
+                { text: "Protein degradation", correct: false },
+                { text: "Lipid synthesis", correct: false },
+            ]
+        },
+        {
+            question: "The process by which a single-celled zygote divides to form a multicellular structure without an increase in size is called:",
+            answers: [
+                { text: "Cleavage", correct: true },
+                { text: "Gastrulation", correct: false },
+                { text: "Organogenesis", correct: false },
+                { text: "Implantation", correct: false },
+                { text: "Fertilization", correct: false },
+            ]
+        },
+        {
+            question: "Fertilization normally occurs in the:",
+            answers: [
+                { text: "Ampulla of the uterine tube", correct: true },
+                { text: "Isthmus of the uterine tube", correct: false },
+                { text: "Ovary", correct: false },
+                { text: "Uterine cavity", correct: false },
+                { text: "Cervical canal", correct: false },
+            ]
+        },
+        {
+            question: "Implantation of the human embryo occurs approximately on which day after fertilization?",
+            answers: [
+                { text: "Day 6–7", correct: true },
+                { text: "Day 2", correct: false },
+                { text: "Day 4", correct: false },
+                { text: "Day 14", correct: false },
+                { text: "Day 10", correct: false },
+            ]
+        },
+        {
+            question: "The three germ layers are formed during which stage of development?",
+            answers: [
+                { text: "Gastrulation", correct: true },
+                { text: "Neurulation", correct: false },
+                { text: "Organogenesis", correct: false },
+                { text: "Cleavage", correct: false },
+                { text: "Blastulation", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following gives rise to the nervous system?",
+            answers: [
+                { text: "Neural tube", correct: true },
+                { text: "Mesoderm", correct: false },
+                { text: "Endoderm", correct: false },
+                { text: "Surface ectoderm", correct: false },
+                { text: "Neural crest", correct: false },
+            ]
+        },
+        {
+            question: "The yolk sac contributes primarily to:",
+            answers: [
+                { text: "Formation of primitive gut and blood cells", correct: true },
+                { text: "Placental barrier", correct: false },
+                { text: "Amniotic fluid production", correct: false },
+                { text: "Formation of neural tube", correct: false },
+                { text: "Nutrition of embryo only", correct: false },
+            ]
+        },
+        {
+            question: "Which layer of the heart wall is functionally equivalent to the tunica intima of blood vessels?",
+            answers: [
+                { text: "Endocardium", correct: true },
+                { text: "Epicardium", correct: false },
+                { text: "Myocardium", correct: false },
+                { text: "Pericardium", correct: false },
+                { text: "Subendocardial layer", correct: false },
+            ]
+        },
+        {
+            question: "Which type of capillary has continuous endothelium and a continuous basement membrane?",
+            answers: [
+                { text: "Continuous capillary", correct: true },
+                { text: "Discontinuous capillary", correct: false },
+                { text: "None of the above", correct: false },
+                { text: "Sinusoidal capillary", correct: false },
+                { text: "Fenestrated capillary", correct: false },
+            ]
+        },
+        {
+            question: "Which structure anchors the endothelium to the underlying connective tissue?",
+            answers: [
+                { text: "Basement membrane", correct: true },
+                { text: "Pericytes", correct: false },
+                { text: "Smooth muscle cells", correct: false },
+                { text: "Reticular fibers", correct: false },
+                { text: "Elastic lamina", correct: false },
+            ]
+        },
+        {
+            question: "The thickest layer in a muscular artery is:",
+            answers: [
+                { text: "Tunica media", correct: true },
+                { text: "Tunica intima", correct: false },
+                { text: "Subendothelial layer", correct: false },
+                { text: "External elastic lamina", correct: false },
+                { text: "Tunica adventitia", correct: false },
+            ]
+        },
+        {
+            question: "Which component of the cardiac conduction system is located in the wall of the right atrium near the opening of the superior vena cava?",
+            answers: [
+                { text: "SA node", correct: true },
+                { text: "Purkinje fibers", correct: false },
+                { text: "Bundle of His", correct: false },
+                { text: "Left bundle branch", correct: false },
+                { text: "AV node", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following vessels lacks a distinct internal elastic lamina?",
+            answers: [
+                { text: "Large vein", correct: true },
+                { text: "Medium-sized artery", correct: false },
+                { text: "Arteriole", correct: false },
+                { text: "Muscular artery", correct: false },
+                { text: "Elastic artery", correct: false },
+            ]
+        },
+        {
+            question: "The cellular components of red bone marrow are mainly supported by which type of framework?",
+            answers: [
+                { text: "Reticular connective tissue", correct: true },
+                { text: "Elastic connective tissue", correct: false },
+                { text: "Areolar connective tissue", correct: false },
+                { text: "Dense irregular connective tissue", correct: false },
+                { text: "Collagen type I fibers", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following statements about the thymus is true?",
+            answers: [
+                { text: "It contains Hassall’s corpuscles in its medulla", correct: true },
+                { text: "It has afferent lymphatic vessels", correct: false },
+                { text: "It is largest in adults", correct: false },
+                { text: "It contains sinusoids in the cortex", correct: false },
+                { text: "It has germinal centers in its cortex", correct: false },
+            ]
+        },
+        {
+            question: "The white pulp of the spleen is primarily composed of which of the following?",
+            answers: [
+                { text: "Lymphocytes around central arteries", correct: true },
+                { text: "Plasma cells and macrophages", correct: false },
+                { text: "Sinusoids lined by Kupffer cells", correct: false },
+                { text: "Erythrocytes", correct: false },
+                { text: "Platelets", correct: false },
+            ]
+        },
+        {
+            question: "In a lymph node, the germinal center of a lymphoid follicle is mainly composed of:",
+            answers: [
+                { text: "B lymphocytes", correct: true },
+                { text: "T lymphocytes", correct: false },
+                { text: "Macrophages only", correct: false },
+                { text: "Reticular cells", correct: false },
+                { text: "Plasma cells exclusively", correct: false },
+            ]
+        },
+        {
+            question: "The cells of the parathyroid gland responsible for parathormone secretion are:",
+            answers: [
+                { text: "Chief (principal) cells", correct: true },
+                { text: "C cells", correct: false },
+                { text: "Follicular cells", correct: false },
+                { text: "Basophil cells", correct: false },
+                { text: "Oxyphil cells", correct: false },
+            ]
+        },
+        {
+            question: "Zona glomerulosa of the adrenal cortex mainly secretes:",
+            answers: [
+                { text: "Aldosterone", correct: true },
+                { text: "Androgens", correct: false },
+                { text: "Epinephrine", correct: false },
+                { text: "Norepinephrine", correct: false },
+                { text: "Cortisol", correct: false },
+            ]
+        },
+        {
+            question: "The endocrine islets of the pancreas (Islets of Langerhans) are most numerous in which region?",
+            answers: [
+                { text: "Body and tail", correct: true },
+                { text: "Uncinate process", correct: false },
+                { text: "Ductal epithelium", correct: false },
+                { text: "Head", correct: false },
+                { text: "Neck", correct: false },
+            ]
+        },
+        {
+            question: "The splenic cords (of Billroth) contain all of the following except:",
+            answers: [
+                { text: "Central arterioles", correct: true },
+                { text: "Lymphocytes", correct: false },
+                { text: "Macrophages", correct: false },
+                { text: "Plasma cells", correct: false },
+                { text: "Reticular cells", correct: false },
+            ]
+        },
+        {
+            question: "The epidermis of the skin is derived from which embryonic germ layer?",
+            answers: [
+                { text: "Ectoderm", correct: true },
+                { text: "Mesoderm", correct: false },
+                { text: "Endoderm", correct: false },
+                { text: "Neural crest", correct: false },
+                { text: "Mesenchyme", correct: false },
+            ]
+        },
+        {
+            question: "The principal type of cell in the epidermis is:",
+            answers: [
+                { text: "Keratinocyte", correct: true },
+                { text: "Fibroblast", correct: false },
+                { text: "Melanocyte", correct: false },
+                { text: "Langerhans cell", correct: false },
+                { text: "Merkel cell", correct: false },
+            ]
+        },
+        {
+            question: "The dermis is primarily composed of which type of connective tissue?",
+            answers: [
+                { text: "Dense irregular connective tissue", correct: true },
+                { text: "Reticular connective tissue only", correct: false },
+                { text: "Fibrocartilage", correct: false },
+                { text: "Elastic connective tissue", correct: false },
+                { text: "Areolar connective tissue only", correct: false },
+            ]
+        },
+        {
+            question: "The hypodermis (subcutaneous tissue) mainly contains:",
+            answers: [
+                { text: "Adipose tissue and loose connective tissue", correct: true },
+                { text: "Smooth muscle cells", correct: false },
+                { text: "Keratinocytes and collagen", correct: false },
+                { text: "Blood vessels and fibroblasts only", correct: false },
+                { text: "Elastic cartilage", correct: false },
+            ]
+        },
+        {
+            question: "The respiratory epithelium lining most of the conducting portion of the respiratory tract is:",
+            answers: [
+                { text: "Pseudostratified ciliated columnar epithelium with goblet cells", correct: true },
+                { text: "Stratified squamous non-keratinized epithelium", correct: false },
+                { text: "Simple squamous epithelium", correct: false },
+                { text: "Simple cuboidal epithelium", correct: false },
+                { text: "Transitional epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The olfactory epithelium is primarily located in which part of the nasal cavity?",
+            answers: [
+                { text: "Superior concha", correct: true },
+                { text: "Nasal vestibule", correct: false },
+                { text: "Nasopharynx", correct: false },
+                { text: "Inferior concha", correct: false },
+                { text: "Middle concha", correct: false },
+            ]
+        },
+        {
+            question: "Which type of cartilage is present in the trachea?",
+            answers: [
+                { text: "Hyaline cartilage", correct: true },
+                { text: "Mixed cartilage", correct: false },
+                { text: "Calcified cartilage", correct: false },
+                { text: "Elastic cartilage", correct: false },
+                { text: "Fibrocartilage", correct: false },
+            ]
+        },
+        {
+            question: "The function of goblet cells in the respiratory mucosa is:",
+            answers: [
+                { text: "Mucus secretion for trapping particles", correct: true },
+                { text: "Production of antimicrobial peptides", correct: false },
+                { text: "Absorption of gases", correct: false },
+                { text: "Secretion of surfactant", correct: false },
+                { text: "Phagocytosis of pathogens", correct: false },
+            ]
+        },
+        {
+            question: "The transition from pseudostratified ciliated columnar to simple cuboidal epithelium occurs at the level of:",
+            answers: [
+                { text: "Terminal bronchioles", correct: true },
+                { text: "Respiratory bronchioles", correct: false },
+                { text: "Alveoli", correct: false },
+                { text: "Trachea", correct: false },
+                { text: "Secondary bronchi", correct: false },
+            ]
+        },
+        {
+            question: "The type of alveolar cell responsible for surfactant secretion is:",
+            answers: [
+                { text: "Type II pneumocyte", correct: true },
+                { text: "Type I pneumocyte", correct: false },
+                { text: "Alveolar macrophage", correct: false },
+                { text: "Endothelial cell", correct: false },
+                { text: "Clara cell", correct: false },
+            ]
+        },
+        {
+            question: "The lining epithelium of most of the oral cavity (except the hard palate and gingiva) is:",
+            answers: [
+                { text: "Non-keratinized stratified squamous epithelium", correct: true },
+                { text: "Simple columnar epithelium", correct: false },
+                { text: "Transitional epithelium", correct: false },
+                { text: "Pseudostratified ciliated epithelium", correct: false },
+                { text: "Keratinized stratified squamous epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The enamel of a tooth is produced by which of the following cells?",
+            answers: [
+                { text: "Ameloblasts", correct: true },
+                { text: "Odontoblasts", correct: false },
+                { text: "Cementocytes", correct: false },
+                { text: "Fibroblasts", correct: false },
+                { text: "Osteoblasts", correct: false },
+            ]
+        },
+        {
+            question: "The esophagus is lined by which type of epithelium?",
+            answers: [
+                { text: "Stratified squamous non-keratinized epithelium", correct: true },
+                { text: "Transitional epithelium", correct: false },
+                { text: "Pseudostratified ciliated epithelium", correct: false },
+                { text: "Simple columnar epithelium", correct: false },
+                { text: "Simple cuboidal epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The chief cells of the gastric glands secrete:",
+            answers: [
+                { text: "Pepsinogen", correct: true },
+                { text: "Intrinsic factor", correct: false },
+                { text: "Gastrin", correct: false },
+                { text: "Hydrochloric acid", correct: false },
+                { text: "Mucus", correct: false },
+            ]
+        },
+        {
+            question: "The distinguishing histologic feature of the large intestine is:",
+            answers: [
+                { text: "Abundance of goblet cells and no villi", correct: true },
+                { text: "Presence of Brunner’s glands", correct: false },
+                { text: "Submucosal lymphoid follicles", correct: false },
+                { text: "Presence of villi", correct: false },
+                { text: "Absence of goblet cells", correct: false },
+            ]
+        },
+        {
+            question: "The intercalated ducts of the pancreas are lined by:",
+            answers: [
+                { text: "Simple cuboidal epithelium", correct: true },
+                { text: "Simple columnar epithelium", correct: false },
+                { text: "Transitional epithelium", correct: false },
+                { text: "Pseudostratified columnar epithelium", correct: false },
+                { text: "Stratified squamous epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The filtration barrier of the renal corpuscle consists of all the following except:",
+            answers: [
+                { text: "Mesangial cells", correct: true },
+                { text: "Fenestrated endothelium of glomerular capillaries", correct: false },
+                { text: "Basement membrane", correct: false },
+                { text: "Podocyte filtration slits", correct: false },
+                { text: "Slit diaphragm", correct: false },
+            ]
+        },
+        {
+            question: "The epithelium lining the Bowman’s capsule parietal layer is:",
+            answers: [
+                { text: "Simple squamous", correct: true },
+                { text: "Transitional", correct: false },
+                { text: "Pseudostratified", correct: false },
+                { text: "Stratified cuboidal", correct: false },
+                { text: "Simple cuboidal", correct: false },
+            ]
+        },
+        {
+            question: "The juxtaglomerular (JG) cells are modified:",
+            answers: [
+                { text: "Smooth muscle cells of afferent arteriole", correct: true },
+                { text: "Mesangial cells", correct: false },
+                { text: "Podocytes", correct: false },
+                { text: "Collecting duct cells", correct: false },
+                { text: "Endothelial cells of afferent arteriole", correct: false },
+            ]
+        },
+        {
+            question: "The thin segment of the loop of Henle is lined by:",
+            answers: [
+                { text: "Simple squamous epithelium", correct: true },
+                { text: "Stratified cuboidal epithelium", correct: false },
+                { text: "Transitional epithelium", correct: false },
+                { text: "Simple columnar epithelium", correct: false },
+                { text: "Simple cuboidal epithelium", correct: false },
+            ]
+        },
+        {
+            question: "The functional unit of the testis where spermatogenesis occurs is:",
+            answers: [
+                { text: "Seminiferous tubules", correct: true },
+                { text: "Epididymal ducts", correct: false },
+                { text: "Vas deferens", correct: false },
+                { text: "Straight tubules", correct: false },
+                { text: "Rete testis", correct: false },
+            ]
+        },
+        {
+            question: "The interstitial (Leydig) cells of the testis secrete:",
+            answers: [
+                { text: "Testosterone", correct: true },
+                { text: "Estrogen", correct: false },
+                { text: "Inhibin", correct: false },
+                { text: "FSH", correct: false },
+                { text: "LH", correct: false },
+            ]
+        },
+        {
+            question: "The seminal vesicle epithelium is specialized for secretion of:",
+            answers: [
+                { text: "Fructose-rich seminal fluid", correct: true },
+                { text: "Mucus", correct: false },
+                { text: "Alkaline prostatic fluid", correct: false },
+                { text: "Testosterone", correct: false },
+                { text: "Sperm", correct: false },
+            ]
+        },
+        {
+            question: "The prostate gland histologically consists of:",
+            answers: [
+                { text: "Compound tubuloalveolar glands", correct: true },
+                { text: "Purely acinar glands", correct: false },
+                { text: "Simple branched tubular glands", correct: false },
+                { text: "Only mucous glands", correct: false },
+                { text: "Only serous glands", correct: false },
+            ]
+        },
+        {
+            question: "The ovarian follicles are lined by which type of cells?",
+            answers: [
+                { text: "Granulosa cells", correct: true },
+                { text: "Leydig cells", correct: false },
+                { text: "Sertoli cells", correct: false },
+                { text: "Interstitial cells", correct: false },
+                { text: "Thecal cells", correct: false },
+            ]
+        },
+        {
+            question: "The endometrium of the uterus in the proliferative phase shows:",
+            answers: [
+                { text: "Straight tubular glands with mitotically active cells", correct: true },
+                { text: "Stromal edema and decidual cells", correct: false },
+                { text: "Atrophic glands", correct: false },
+                { text: "Dense hyalinized stroma", correct: false },
+                { text: "Coiled glands filled with secretions", correct: false },
+            ]
+        },
+        {
+            question: "The cervical canal epithelium changes abruptly at the external os from:",
+            answers: [
+                { text: "Simple columnar to stratified squamous non-keratinized", correct: true },
+                { text: "Stratified squamous to transitional", correct: false },
+                { text: "Simple columnar to pseudostratified columnar", correct: false },
+                { text: "Transitional to simple columnar", correct: false },
+                { text: "Simple cuboidal to simple  columnar", correct: false },
+            ]
+        },
+        {
+            question: "In a lactating mammary gland, the predominant cell type responsible for milk secretion is:",
+            answers: [
+                { text: "Secretory epithelial cell", correct: true },
+                { text: "Fibroblast", correct: false },
+                { text: "Adipocyte", correct: false },
+                { text: "Myoepithelial cell", correct: false },
+                { text: "Ductal cell", correct: false },
+            ]
+        },
+        {
+            question: "Myelin sheath in the peripheral nervous system is produced by:",
+            answers: [
+                { text: "Schwann cells", correct: true },
+                { text: "Astrocytes", correct: false },
+                { text: "Microglia", correct: false },
+                { text: "Satellite cells", correct: false },
+                { text: "Oligodendrocytes", correct: false },
+            ]
+        },
+        {
+            question: "The outermost layer of the cerebellar cortex is the:",
+            answers: [
+                { text: "Molecular layer", correct: true },
+                { text: "Purkinje cell layer", correct: false },
+                { text: "Granular layer", correct: false },
+                { text: "White matter", correct: false },
+                { text: "Subpial layer", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following meninges is vascular and closely adherent to the brain surface?",
+            answers: [
+                { text: "Pia mater", correct: true },
+                { text: "Subdural membrane", correct: false },
+                { text: "Choroid plexus", correct: false },
+                { text: "Dura mater", correct: false },
+                { text: "Arachnoid mater", correct: false },
+            ]
+        },
+        {
+            question: "The gray matter of the spinal cord primarily contains:",
+            answers: [
+                { text: "Dendrites and neuron cell bodies", correct: true },
+                { text: "Myelinated fibers", correct: false },
+                { text: "Glial limiting membrane", correct: false },
+                { text: "Blood capillaries only", correct: false },
+                { text: "Axons", correct: false },
+            ]
+        },
+        {
+            question: "In the retina, ganglion cell axons converge to form the:",
+            answers: [
+                { text: "Optic nerve", correct: true },
+                { text: "Optic tract", correct: false },
+                { text: "Fovea centralis", correct: false },
+                { text: "Lamina cribrosa", correct: false },
+                { text: "Optic chiasma", correct: false },
+            ]
+        },
+        {
+            question: "The gray and white matter arrangement in the spinal cord can be described as:",
+            answers: [
+                { text: "White matter external, gray matter internal", correct: true },
+                { text: "Mixed arrangement without clear boundary", correct: false },
+                { text: "Alternate layers of gray and white matter", correct: false },
+                { text: "Only gray matter present in spinal cord", correct: false },
+                { text: "Gray matter external, white matter internal", correct: false },
+            ]
+        },
+        {
+            question: "The choroid plexus is mainly responsible for:",
+            answers: [
+                { text: "Formation of cerebrospinal fluid", correct: true },
+                { text: "Providing immune surveillance to meninges", correct: false },
+                { text: "Maintaining blood–brain barrier", correct: false },
+                { text: "Producing neurotransmitters for neurons", correct: false },
+                { text: "Regulating cerebrospinal fluid reabsorption", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following correctly represents the cell type responsible for myelin formation in the central nervous system?",
+            answers: [
+                { text: "Oligodendrocyte", correct: true },
+                { text: "Microglial cell", correct: false },
+                { text: "Satellite cell", correct: false },
+                { text: "Schwann cell", correct: false },
+                { text: "Astrocyte", correct: false },
+            ]
+        },
+        {
+            question: "The organ of Corti is located on which structure?",
+            answers: [
+                { text: "Basilar membrane", correct: true },
+                { text: "Vestibular membrane", correct: false },
+                { text: "Reissner’s membrane", correct: false },
+                { text: "Tectorial membrane", correct: false },
+                { text: "Scala vestibuli", correct: false },
+            ]
+        },
+        {
+            question: "The dorsal root ganglion differs from an autonomic ganglion because:",
+            answers: [
+                { text: "Its neurons are pseudounipolar", correct: true },
+                { text: "It shows synaptic connections", correct: false },
+                { text: "It is devoid of connective tissue capsule", correct: false },
+                { text: "It contains multipolar neurons", correct: false },
+                { text: "It lacks satellite cells", correct: false },
+            ]
+        },
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let isExamMode = false;
+        let isDarkMode = false;
+        let isAnswerMode = false;
+        let isQuestionShuffleMode = false; // NEW: Question shuffle mode for non-exam
+        let isQuestionShuffleEnabled = false; // NEW: Question shuffle for exam mode
+        let timerInterval = null;
+        let timerActive = false;
+        let timerExpired = false;
+        let totalQuestions = questions.length;
+        let selectedQuestionCount = questions.length;
+        let examGridExpanded = true;
+        let originalQuestionOrder = []; // NEW: Store original question order
+        let shuffledQuestionOrder = []; // NEW: Store shuffled question order
+        let currentQuestionOrder = []; // NEW: Current active question order
+
+        // NEW: Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // NEW: Shuffle options for a question
+        function shuffleQuestionOptions(question) {
+            const shuffledAnswers = shuffleArray(question.answers);
+            return {
+                ...question,
+                answers: shuffledAnswers
+            };
+        }
+
+        // Initialize quiz
+        function initializeQuiz() {
+            // Initialize question orders
+            originalQuestionOrder = Array.from({length: questions.length}, (_, i) => i);
+            shuffledQuestionOrder = shuffleArray(originalQuestionOrder);
+            currentQuestionOrder = [...originalQuestionOrder];
+            
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Load current question with option shuffling
+        function loadQuestion() {
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const originalQuestion = questions[questionIndex];
+            
+            // NEW: Always shuffle options when loading a question
+            const question = shuffleQuestionOptions(originalQuestion);
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1} / ${selectedQuestionCount}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option';
+                answerDiv.onclick = () => selectAnswer(index, answer.correct);
+
+                const optionLabel = document.createElement('div');
+                optionLabel.className = 'option-label';
+                optionLabel.textContent = String.fromCharCode(65 + index); // A, B, C, D
+
+                const optionText = document.createElement('div');
+                optionText.className = 'option-text';
+                optionText.textContent = answer.text;
+
+                answerDiv.appendChild(optionLabel);
+                answerDiv.appendChild(optionText);
+                answersContainer.appendChild(answerDiv);
+
+                // Restore previous selection
+                if (userAnswers[questionIndex] !== null && userAnswers[questionIndex].selectedIndex === index) {
+                    answerDiv.classList.add('selected');
+                }
+
+                // Apply answer mode styling if active and not in exam mode
+                if (isAnswerMode && !isExamMode) {
+                    if (answer.correct) {
+                        answerDiv.classList.add('correct-answer-mode');
+                    } else {
+                        answerDiv.classList.add('other-answer-mode');
+                    }
+                }
+
+                // Apply timer expired styling
+                if (timerExpired) {
+                    answerDiv.classList.add('timer-expired');
+                }
+            });
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+        }
+
+        // Select answer with correct answer tracking
+        function selectAnswer(answerIndex, isCorrect) {
+            if (timerExpired) return;
+
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // In exam mode, ensure only one option can be selected (radio button behavior)
+            if (isExamMode) {
+                answerOptions.forEach(option => option.classList.remove('selected'));
+            }
+
+            // Store the answer with correctness info
+            userAnswers[questionIndex] = {
+                selectedIndex: answerIndex,
+                isCorrect: isCorrect
+            };
+
+            // Update visual selection
+            answerOptions[answerIndex].classList.add('selected');
+
+            // In non-exam mode, show immediate feedback
+            if (!isExamMode) {
+                const originalQuestion = questions[questionIndex];
+                answerOptions.forEach((option, index) => {
+                    option.classList.remove('correct', 'incorrect');
+                    // Find the correct answer in the shuffled options
+                    const currentAnswers = Array.from(document.querySelectorAll('.option-text')).map(el => el.textContent);
+                    const correctAnswerText = originalQuestion.answers.find(a => a.correct).text;
+                    const correctIndex = currentAnswers.indexOf(correctAnswerText);
+                    
+                    if (index === correctIndex) {
+                        option.classList.add('correct');
+                    } else if (index === answerIndex) {
+                        option.classList.add('incorrect');
+                    }
+                    option.classList.add('disabled');
+                });
+            }
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            if (currentQuestionIndex < selectedQuestionCount - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            if (questionIndex < selectedQuestionCount) {
+                currentQuestionIndex = questionIndex;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestionNumber() {
+            const input = document.getElementById('jumpInput');
+            const questionNumber = parseInt(input.value);
+            
+            if (questionNumber >= 1 && questionNumber <= selectedQuestionCount) {
+                jumpToQuestion(questionNumber - 1);
+                input.value = '';
+            } else {
+                alert(`Please enter a number between 1 and ${selectedQuestionCount}`);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === selectedQuestionCount - 1) {
+                nextBtn.style.display = 'none';
+                if (isExamMode) {
+                    submitBtn.style.display = 'inline-block';
+                    finishBtn.style.display = 'none';
+                } else {
+                    finishBtn.style.display = 'inline-block';
+                    submitBtn.style.display = 'none';
+                }
+            } else {
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+            }
+
+            // Show submit button in exam mode for instant results
+            if (isExamMode && currentQuestionIndex < selectedQuestionCount - 1) {
+                submitBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Question grid functions
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createMobileQuestionGrid() {
+            const grid = document.getElementById('mobileQuestionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createExamQuestionGrid() {
+            const grid = document.getElementById('examGridContainer');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'exam-grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function updateQuestionGrid() {
+            const gridItems = document.querySelectorAll('#questionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateMobileQuestionGrid() {
+            const gridItems = document.querySelectorAll('#mobileQuestionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateExamQuestionGrid() {
+            const gridItems = document.querySelectorAll('#examGridContainer .exam-grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    item.classList.add('answered');
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        // Mobile dropdown functions
+        function toggleMobileDropdown() {
+            const content = document.getElementById('dropdownContent');
+            const arrow = document.getElementById('dropdownArrow');
+            
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Exam grid toggle functions
+        function toggleExamGrid() {
+            const container = document.getElementById('examGridContainer');
+            const toggle = document.getElementById('examGridToggle');
+            
+            examGridExpanded = !examGridExpanded;
+            
+            if (examGridExpanded) {
+                container.classList.remove('collapsed');
+                toggle.textContent = 'Collapse';
+            } else {
+                container.classList.add('collapsed');
+                toggle.textContent = 'Expand';
+            }
+        }
+
+        // Mode toggle functions
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const btn = document.getElementById('darkModeBtn');
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                btn.classList.add('active');
+                btn.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        function toggleAnswerMode() {
+            isAnswerMode = !isAnswerMode;
+            const btn = document.getElementById('answerModeBtn');
+            
+            if (isAnswerMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔒 Hide Answers';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '💡 Answer Mode';
+            }
+            
+            loadQuestion(); // Reload to apply answer mode styling
+        }
+
+        // NEW: Question shuffle mode for non-exam mode
+        function toggleQuestionShuffleMode() {
+            isQuestionShuffleMode = !isQuestionShuffleMode;
+            const btn = document.getElementById('questionShuffleModeBtn');
+            
+            if (isQuestionShuffleMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔀 Shuffle: ON';
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🔀 Shuffle Questions';
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Question shuffle toggle for exam mode
+        function toggleQuestionShuffle() {
+            isQuestionShuffleEnabled = !isQuestionShuffleEnabled;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            if (isQuestionShuffleEnabled) {
+                btn.classList.add('active');
+                btn.textContent = 'Enabled';
+                settings.classList.add('hidden');
+                display.classList.add('active');
+                displayText.textContent = 'Shuffle: ON';
+                resetBtn.classList.add('visible');
+                
+                // Apply shuffle
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Enable';
+                settings.classList.remove('hidden');
+                display.classList.remove('active');
+                displayText.textContent = 'Shuffle: Off';
+                resetBtn.classList.remove('visible');
+                
+                // Restore original order
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question shuffle
+        function resetQuestionShuffle() {
+            isQuestionShuffleEnabled = false;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            btn.classList.remove('active');
+            btn.textContent = 'Enable';
+            settings.classList.remove('hidden');
+            display.classList.remove('active');
+            displayText.textContent = 'Shuffle: Off';
+            resetBtn.classList.remove('visible');
+            
+            // Restore original order
+            currentQuestionOrder = [...originalQuestionOrder];
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        function toggleExamMode() {
+            isExamMode = !isExamMode;
+            const btn = document.getElementById('examModeBtn');
+            const exitBtn = document.getElementById('exitBtnText');
+            const title = document.querySelector('.title');
+            
+            if (isExamMode) {
+                document.body.classList.add('exam-mode');
+                btn.classList.add('active');
+                btn.textContent = '📝 Exit Exam Mode';
+                exitBtn.textContent = 'Exit Exam Mode';
+                title.textContent = 'EXAM MODE';
+                
+                // Reset all answers and reload
+                userAnswers = new Array(questions.length).fill(null);
+                currentQuestionIndex = 0;
+                loadQuestion();
+                updateNavigationButtons();
+            } else {
+                document.body.classList.remove('exam-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🎓 Simulate Exam Mode';
+                exitBtn.textContent = 'Exit';
+                title.textContent = 'Enhanced Quiz Application';
+                
+                loadQuestion(); // Reload to remove exam mode styling
+            }
+        }
+
+        // NEW: Enhanced question count functions
+        function setQuestionCount() {
+            const input = document.getElementById('questionCountInput');
+            const newCount = parseInt(input.value) || questions.length;
+            
+            if (newCount < 1 || newCount > questions.length) {
+                alert(`Please enter a number between 1 and ${questions.length}`);
+                input.value = selectedQuestionCount;
+                return;
+            }
+            
+            selectedQuestionCount = newCount;
+            
+            // Hide settings and show display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            
+            settings.classList.add('hidden');
+            displayText.textContent = `${selectedQuestionCount} / ${questions.length}`;
+            resetBtn.classList.add('visible');
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question count
+        function resetQuestionCount() {
+            selectedQuestionCount = questions.length;
+            
+            // Show settings and hide display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            const input = document.getElementById('questionCountInput');
+            
+            settings.classList.remove('hidden');
+            displayText.textContent = `${questions.length} / ${questions.length}`;
+            resetBtn.classList.remove('visible');
+            input.value = questions.length;
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // Timer functions
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            const totalSeconds = minutes * 60 + seconds;
+
+            if (totalSeconds <= 0) {
+                alert('Please set a valid time');
+                return;
+            }
+
+            timerActive = true;
+            timerExpired = false;
+            let remainingTime = totalSeconds;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.add('active');
+            timerResetBtn.classList.add('visible');
+            timerSettings.classList.add('hidden');
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerExpired = true;
+                    timerActive = false;
+                    timer.classList.remove('active');
+                    timerDisplay.textContent = 'Time expired!';
+                    
+                    // Show timer expired overlay
+                    document.getElementById('timerExpiredOverlay').classList.add('visible');
+                    document.getElementById('quizSection').classList.add('timer-expired');
+                    
+                    // Auto-submit quiz
+                    setTimeout(() => {
+                        finishQuiz();
+                    }, 3000);
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerActive = false;
+            timerExpired = false;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.remove('active');
+            timerResetBtn.classList.remove('visible');
+            timerSettings.classList.remove('hidden');
+            timerDisplay.textContent = 'No timer set';
+
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+            document.getElementById('quizSection').classList.remove('timer-expired');
+
+            loadQuestion(); // Reload to remove timer expired styling
+        }
+
+        function hideTimerExpiredOverlay() {
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+        }
+
+        // Quiz completion
+        function finishQuiz() {
+            const answeredQuestions = userAnswers.slice(0, selectedQuestionCount).filter(answer => answer !== null).length;
+            const correctAnswers = userAnswers.slice(0, selectedQuestionCount).reduce((count, answer, index) => {
+                if (answer !== null && answer.isCorrect) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
+
+            const percentage = Math.round((correctAnswers / selectedQuestionCount) * 100);
+            const passed = percentage >= 60;
+
+            if (isExamMode) {
+                // Show result overlay for exam mode
+                const resultOverlay = document.getElementById('resultOverlay');
+                const resultMessage = document.getElementById('resultMessage');
+                const resultTitle = document.getElementById('resultTitle');
+                const resultStats = document.getElementById('resultStats');
+
+                resultTitle.textContent = passed ? '🎉 PASSED!' : '❌ FAILED';
+                resultTitle.className = `result-title ${passed ? 'passed' : 'failed'}`;
+                resultMessage.className = `result-message ${passed ? 'passed' : 'failed'}`;
+
+                resultStats.innerHTML = `
+                    <strong>Questions Answered:</strong> ${answeredQuestions} / ${selectedQuestionCount}<br>
+                    <strong>Correct Answers:</strong> ${correctAnswers} / ${selectedQuestionCount}<br>
+                    <strong>Percentage:</strong> ${percentage}%<br><br>
+                    <em>${passed ? 'Congratulations! You passed the exam.' : 'You need 60% to pass. Better luck next time!'}</em>
+                `;
+
+                resultOverlay.classList.add('visible');
+            } else {
+                // Show alert for normal mode
+                let message = `Quiz Completed!\n\n`;
+                message += `Questions Answered: ${answeredQuestions} / ${selectedQuestionCount}\n`;
+                message += `Correct Answers: ${correctAnswers} / ${selectedQuestionCount}\n`;
+                message += `Percentage: ${percentage}%`;
+
+                alert(message);
+            }
+        }
+
+        function hideResultOverlay() {
+            document.getElementById('resultOverlay').classList.remove('visible');
+        }
+
+        function exitQuiz() {
+            if (isExamMode) {
+                toggleExamMode();
+            } else {
+                if (confirm('Are you sure you want to exit the quiz?')) {
+                    window.close();
+                }
+            }
+        }
+
+        // Initialize the quiz when page loads
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+</body>
+</html>
